@@ -104,6 +104,12 @@ pokemonRouter.post("/", function (req, res, next) {
       if (!filterKeys.includes(key)) throw err;
     });
 
+    if (req.body.id.length.toString() > 3) {
+      err.message = "id must smaller than 1000";
+      err.statusCode = 401;
+      throw err;
+    }
+
     if (!Array.isArray(req.body.types)) {
       err.message = "Types must be a array";
       throw err;
@@ -154,11 +160,7 @@ pokemonRouter.put("/:id", function (req, res, next) {
   try {
     let editPokeId = Number(req.params.id);
     const updateData = req.body;
-    console.log(
-      "🚀 ~ file: pokemon.api.js:153 ~ updateData",
-      Array.isArray(updateData.types),
-      updateData.types.length > 2
-    );
+
     const updateKeys = Object.keys(updateData);
     const db = JSON.parse(fs.readFileSync("pokemon.json"));
 
