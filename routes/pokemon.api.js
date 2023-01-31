@@ -54,31 +54,35 @@ pokemonRouter.get("/", (req, res, next) => {
 });
 
 pokemonRouter.get("/:id", (req, res, next) => {
-  let id = Number(req.params.id);
-
+  let pokeId = Number(req.params.id);
   try {
-    if (!id) {
-      const exception = new Error(`the ID must be a number and not 0`);
-      exception.statusCode = 401;
-      throw exception;
+    const db = JSON.parse(fs.readFileSync("pokemon.json"));
+
+    const pokeIdx = db.findIndex(
+      (pokemon) => Number(pokemon.id) === Number(pokeId)
+    );
+
+    if (pokeIdx < 0) {
+      const error = new Error("The given ID not valid");
+      error.statusCode = 401;
+      throw error;
     }
 
-    const db = JSON.parse(fs.readFileSync("pokemon.json"));
-    let pokemon = db[id - 1];
+    let pokemon = db[pokeIdx];
     let previousPokemon, nextPokemon;
     if (!pokemon) {
       const notFound = new Error(`Pokemon not found`);
       notFound.statusCode = 401;
       throw notFound;
-    } else if (id === 1) {
+    } else if (pokeIdx === 0) {
       previousPokemon = db[db.length - 1];
-      nextPokemon = db[2];
-    } else if (id === db.length - 1) {
+      nextPokemon = db[1];
+    } else if (pokeIdx === db.length - 1) {
       previousPokemon = db[db.length - 2];
       nextPokemon = db[0];
     } else {
-      previousPokemon = db[id - 1];
-      nextPokemon = db[id + 1];
+      previousPokemon = db[pokeIdx - 1];
+      nextPokemon = db[pokeIdx + 1];
     }
 
     let result = { pokemon, previousPokemon, nextPokemon };
